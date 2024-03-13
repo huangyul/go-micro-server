@@ -4,8 +4,9 @@ import (
 	"context"
 	"fmt"
 	"go-micro-server/basic/04_grpc_demo/proto"
-	"google.golang.org/grpc"
 	"testing"
+
+	"google.golang.org/grpc"
 )
 
 func TestGrpcCilent(t *testing.T) {
