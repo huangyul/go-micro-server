@@ -1,10 +1,10 @@
 package _6_gorm
 
 import (
-	"fmt"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 	"log"
 	"os"
 	"testing"
@@ -13,14 +13,11 @@ import (
 
 type User struct {
 	gorm.Model
-	Name  string
-	Cards []Card `gorm:"foreignKey:UserID"`
+	Name string
 }
 
-type Card struct {
-	gorm.Model
-	Name   string
-	UserID uint
+func (User) TableName() string {
+	return "my_users"
 }
 
 func Test_Gorm(t *testing.T) {
@@ -37,25 +34,43 @@ func Test_Gorm(t *testing.T) {
 	dsn := "root:root@tcp(localhost:33066)/webook?charset=utf8mb4&parseTime=True&loc=Local"
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: newLogger,
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix: "xxx_",
+		},
 	})
 	if err != nil {
 		panic(err)
 	}
 
+	db.AutoMigrate(&User{})
+
 	// 数据库迁移
-	err = db.AutoMigrate(&User{}, &Card{})
-	if err != nil {
-		panic(err)
-	}
+	//err = db.AutoMigrate(&User{})
+	//if err != nil {
+	//	panic(err)
+	//}
+
+	// 新建数据
+	//language := []Language{
+	//	{Name: "golang"},
+	//	{Name: "node"},
+	//}
+	//db.Create(&User{
+	//	Language: language,
+	//})
+	//
+	//// 查找数据
+	//var user User
+	//db.Preload("languages").First(&user)
 	//
 	//db.Create(&User{Name: "user"})
 	//db.Create(&Card{
 	//	Name:   "card1",
 	//	UserID: 1,
 	//})
-	var user User
-	db.Preload("Cards").First(&user)
-	fmt.Println(user.Cards)
+	//var user User
+	//db.Preload("Cards").First(&user)
+	//fmt.Println(user.Cards)
 }
 
 // 创建数据
