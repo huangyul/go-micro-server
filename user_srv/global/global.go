@@ -13,7 +13,7 @@ import (
 var DB *gorm.DB
 
 func init() {
-	dsn := "root:root@tcp(localhost:33066)/webook?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := "root:root@tcp(localhost:33066)/mk_user_srv?charset=utf8mb4&parseTime=True&loc=Local"
 
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags),
