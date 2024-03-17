@@ -8,6 +8,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"time"
 )
 
 type UserServer struct {
@@ -97,12 +98,36 @@ func (u *UserServer) CreateUser(ctx context.Context, request *proto.CreateUserRe
 	return modelToUserResponse(user), nil
 }
 
+// UpdateUser 更新用户信息
 func (u *UserServer) UpdateUser(ctx context.Context, request *proto.UpdateUserRequest) (*proto.UpdateResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	var user model.User
+	result := global.DB.WithContext(ctx).First(&user, request.Id)
+	if result.RowsAffected == 0 {
+		return nil, status.Errorf(codes.NotFound, "用户不存在")
+	}
+
+	user.NickName = request.NickName
+	user.Gender = request.Gender
+	birthday := time.Unix(int64(request.Birthday), 0)
+	user.Birthday = &birthday
+
+	result = global.DB.Save(user)
+	if result.Error != nil {
+		return nil, status.Errorf(codes.Internal, result.Error.Error())
+	}
+	return &proto.UpdateResponse{
+		Success: true,
+	}, nil
 }
 
+// CheckPassword 校验密码
 func (u *UserServer) CheckPassword(ctx context.Context, request *proto.PasswordCheckRequest) (*proto.CheckResponse, error) {
-	//TODO implement me
-	panic("implement me")
+	err := bcrypt.CompareHashAndPassword([]byte(request.EncryptedPassword), []byte(request.Password))
+	var res *proto.CheckResponse
+	if err != nil {
+		res.Success = false
+		return res, nil
+	}
+	res.Success = true
+	return res, nil
 }
