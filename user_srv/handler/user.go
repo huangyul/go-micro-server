@@ -5,10 +5,11 @@ import (
 	"go-micro-server/user_srv/global"
 	"go-micro-server/user_srv/model"
 	"go-micro-server/user_srv/proto"
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"time"
 )
 
 type UserServer struct {
@@ -123,7 +124,7 @@ func (u *UserServer) UpdateUser(ctx context.Context, request *proto.UpdateUserRe
 // CheckPassword 校验密码
 func (u *UserServer) CheckPassword(ctx context.Context, request *proto.PasswordCheckRequest) (*proto.CheckResponse, error) {
 	err := bcrypt.CompareHashAndPassword([]byte(request.EncryptedPassword), []byte(request.Password))
-	var res *proto.CheckResponse
+	res := &proto.CheckResponse{}
 	if err != nil {
 		res.Success = false
 		return res, nil
